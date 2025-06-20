@@ -5,70 +5,97 @@
     <title>Welcome Page</title>
     <style>
         body {
-            background-color: #bfbfbf;
+            background-color: yellow;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 40px;
             margin: 0;
+        }
+
+        label, select, input, button {
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        pre {
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            width: 90%;
+            max-width: 600px;
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
 
-<h1>Welcome!!</h1>
+    <h1>Welcome!!</h1>
 
-<label for="sensorType">Sensor Type:</label>
-<select id="sensorType">
-  <option value="KX">KX</option>
-  <option value="AD">AD</option>
-</select>
+    <label for="sensorType">Sensor Type:</label>
+    <select id="sensorType">
+        <option value="KX">KX</option>
+        <option value="AD">AD</option>
+    </select>
 
-<br><br>
+    <label for="requiredSamples">Required Samples:</label>
+    <input type="number" id="requiredSamples" value="8192" />
 
-<label for="requiredSamples">Required Samples:</label>
-<input type="number" id="requiredSamples" value="8192" />
+    <div>
+        <button onclick="generateJSON()">Generate JSON</button>
+        <button onclick="downloadJSON()">Download JSON</button>
+    </div>
 
-<br><br>
+    <pre id="output"></pre>
 
-<button onclick="generateJSON()">Generate JSON</button>
+    <script>
+        function generateJSON() {
+            const sensorType = document.getElementById('sensorType').value;
+            const requiredSamples = parseInt(document.getElementById('requiredSamples').value);
 
-<pre id="output" style="background: #fff; padding: 10px; border: 1px solid #ccc;"></pre>
-
-<script>
-function generateJSON() {
-    const sensorType = document.getElementById('sensorType').value;
-    const requiredSamples = parseInt(document.getElementById('requiredSamples').value);
-
-    const config = {
-        mode_settings: {
-            BLE_mode: (sensorType === 'KX') ? 4 : 5,
-            device_mode: 3,
-            required_samples: requiredSamples,
-            scan_timer: 10,
-            data_timer: 4,
-            connected_burst_interval: 30
-        },
-        sensors: {
-            "ED:76:3E:F2:5D:E1": {
-                configurations: {
-                    enable_accelerometer: {
-                        sensor_id: 6,
-                        config_id: 1,
-                        value: 1
-                    }
+            const config = {
+                mode_settings: {
+                    BLE_mode: (sensorType === 'KX') ? 4 : 5,
+                    device_mode: 3,
+                    required_samples: requiredSamples,
+                    scan_timer: 10,
+                    data_timer: 4,
+                    connected_burst_interval: 30
                 },
-                required_blob_packets: 105,
-                required_disconnect_packets: 211
-            }
-        }
-    };
+                sensors: {
+                    "ED:76:3E:F2:5D:E1": {
+                        configurations: {
+                            enable_accelerometer: {
+                                sensor_id: 6,
+                                config_id: 1,
+                                value: 1
+                            }
+                        },
+                        required_blob_packets: 105,
+                        required_disconnect_packets: 211
+                    }
+                }
+            };
 
-    document.getElementById("output").textContent = JSON.stringify(config, null, 4);
-}
-</script>
+            document.getElementById("output").textContent = JSON.stringify(config, null, 4);
+        }
+
+        function downloadJSON() {
+            const jsonText = document.getElementById("output").textContent;
+
+            if (!jsonText.trim()) {
+                alert("Please generate JSON first!");
+                return;
+            }
+
+            const blob = new Blob([jsonText], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "settings.json";
+            link.click();
+        }
+    </script>
 
 </body>
 </html>
