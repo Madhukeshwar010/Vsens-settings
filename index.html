@@ -5,9 +5,10 @@
     <title>Welcome Page</title>
     <style>
         body {
-            background-color: yellow;
+            background-color:#BFBFBF;
             font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -16,10 +17,28 @@
         h1 {
             color: #333;
             font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        select {
+            padding: 6px 12px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #999;
         }
     </style>
 </head>
 <body>
-    <h1>Hey, welcome!!!!</h1>
+    <h1>Welcome!!</h1>
+
+    <label for="sensorType">Sensor Type:</label>
+    <select id="sensorType" name="sensorType">
+        <option value="KX">KX</option>
+        <option value="AD">AD</option>
+    </select>
+
 </body>
 </html>
