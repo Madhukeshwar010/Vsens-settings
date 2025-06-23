@@ -1,101 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Welcome Page</title>
-    <style>
-        body {
-            background-color: yellow;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-            margin: 0;
-        }
+  <meta charset="UTF-8" />
+  <title>Welcome Page</title>
+  <style>
+    body {
+      background-color: yellow;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        label, select, input, button {
-            margin: 10px;
-            font-size: 16px;
-        }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
 
-        pre {
-            background: #fff;
-            padding: 10px;
-            border: 1px solid #ccc;
-            width: 90%;
-            max-width: 600px;
-            overflow-x: auto;
-        }
-    </style>
+    label, select, input, button {
+      display: block;
+      margin: 10px auto;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #macInputsContainer label,
+    #macInputsContainer input {
+      display: block;
+      margin: 5px auto;
+    }
+
+    pre {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 600px;
+    max-height: 400px;       /* Limit height */
+    overflow-y: auto;         /* Scroll if content exceeds */
+    overflow-x: auto;
+    white-space: pre-wrap;    /* Allow wrapping */
+    word-break: break-word;
+    margin-top: 20px;
+    text-align: left;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Vsens Settings Configuration</h2>
 
-    <h1>Welcome!!</h1>
-
-    <label for="sensorType">Sensor Type:</label>
-    <select id="sensorType">
-        <option value="KX">KX</option>
-        <option value="AD">AD</option>
+    <label for="ActiveSensor">Active Sensor:</label>
+    <select id="ActiveSensor">
+      <option value="0">KX</option>
+      <option value="1">AD</option>
     </select>
 
+    <label for="BLEMode">BLE Mode:</label>
+    <select id="BLEMode">
+      <option value="5">BLE5</option>
+      <option value="4">BLE4</option>
+    </select>
+
+    <label for="DeviceMode">Device Mode:</label>
+    <select id="DeviceMode">
+      <option value="0">CB Raw</option>
+      <option value="1">CB VRMS</option>
+      <option value="2">MMC (CC vrms)</option>
+      <option value="3">MMC (CB Raw)</option>
+    </select>
+    
     <label for="requiredSamples">Required Samples:</label>
     <input type="number" id="requiredSamples" value="8192" />
 
-    <div>
-        <button onclick="generateJSON()">Generate JSON</button>
-        <button onclick="downloadJSON()">Download JSON</button>
+    <label for="burstinterval">Burst interval:</label>
+    <input type="number" id="burstinterval" value="30" />
+
+    <label for="datatimer">Data timer:</label>
+    <input type="number" id="datatimer" value="3" />
+
+    <div id="kxDropdown">
+    <label for="Samplingfreq1">Sampling Frequency:</label>
+    <select id="Samplingfreq1">
+        <option value="14">6400</option>
+        <option value="13">3200</option>
+        <option value="12">1600</option>
+        <option value="11">800</option>
+        <option value="10">400</option>
+        <option value="9">200</option>
+        <option value="8">100</option>
+        <option value="7">50</option>
+    </select>
     </div>
 
+    <div id="adDropdown" style="display: none;">
+    <label for="Samplingfreq2">Sampling Frequency:</label>
+    <select id="Samplingfreq2">
+        <option value="0">4000</option>
+        <option value="1">2000</option>
+        <option value="2">1000</option>
+        <option value="3">500</option>
+        <option value="4">250</option>
+        <option value="5">125</option>
+        <option value="6">62.5</option>
+        <option value="7">50</option>
+    </select>
+    </div>
+
+    <label for="Range">Sensor Range:</label>
+    <select id="Range">
+    <option value="0">2</option>
+    <option value="1">4</option>
+    <option value="2">8</option>
+    <option value="3">16</option>
+    <option value="4">32</option>
+    </select>
+
+    <label for="Range1">Sensor Range:</label>
+    <select id="Range1">
+    <option value="0">2</option>
+    <option value="1">4</option>
+    <option value="2">8</option>
+    <option value="3">16</option>
+    <option value="4">32</option>
+    </select>
+
+    <label for="numSensors">Number of Sensors:</label>
+    <input type="number" id="numSensors" value="1" oninput="generateMacInputs()" />
+
+    <div id="macInputsContainer"></div>
+
+    <button onclick="generateJSON()">Generate JSON</button>
+    <button onclick="downloadJSON()">Download JSON</button>
+
     <pre id="output"></pre>
+  </div>
 
-    <script>
-        function generateJSON() {
-            const sensorType = document.getElementById('sensorType').value;
-            const requiredSamples = parseInt(document.getElementById('requiredSamples').value);
+  <script>
+    function generateMacInputs() {
+      const container = document.getElementById("macInputsContainer");
+      const count = parseInt(document.getElementById("numSensors").value) || 0;
+      container.innerHTML = "";
 
-            const config = {
-                mode_settings: {
-                    BLE_mode: (sensorType === 'KX') ? 4 : 5,
-                    device_mode: 3,
-                    required_samples: requiredSamples,
-                    scan_timer: 10,
-                    data_timer: 4,
-                    connected_burst_interval: 30
+      for (let i = 0; i < count; i++) {
+        const label = document.createElement("label");
+        label.textContent = `Sensor ${i + 1} MAC: `;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "e.g., ED:76:3E:F2:5D:E1";
+        input.id = `sensorMac${i + 1}`;
+
+        container.appendChild(label);
+        container.appendChild(input);
+      }
+    }
+
+    function generateJSON() {
+      const deviceModeInput = parseInt(document.getElementById("DeviceMode").value);
+      const deviceMode = [0, 1, 2, 3].includes(deviceModeInput) ? 3 : 2;
+      const config = {
+        mode_settings: {
+          BLE_mode: parseInt(document.getElementById("BLEMode").value),
+          device_mode: deviceMode,
+          scan_timer: 10,
+          required_samples: parseInt(document.getElementById("requiredSamples").value),
+          data_timer: parseInt(document.getElementById("datatimer").value),
+          connected_burst_interval: parseInt(document.getElementById("burstinterval").value)
+        },
+        sensors: {}
+      };
+
+      const sensorCount = parseInt(document.getElementById("numSensors").value);
+      for (let i = 0; i < sensorCount; i++) {
+        const mac = document.getElementById(`sensorMac${i + 1}`).value.trim();
+        if (mac) {
+          config.sensors[mac] = {
+            configurations: {
+                "enable_accelerometer": {
+                    "sensor_id": 2,
+                    "config_id": 1,
+                    "value": 1
                 },
-                sensors: {
-                    "ED:76:3E:F2:5D:E1": {
-                        configurations: {
-                            enable_accelerometer: {
-                                sensor_id: 6,
-                                config_id: 1,
-                                value: 1
-                            }
-                        },
-                        required_blob_packets: 105,
-                        required_disconnect_packets: 211
-                    }
+                "acc_data_type": {
+                    "sensor_id": 1,
+                    "config_id": 6,
+                    "value": 1
+                },
+                "accelerometer_sampling_rate": {
+                    "sensor_id": 2,
+                    "config_id": 2,
+                    "value": parseInt(document.getElementById("Samplingfreq1").value)
+                },
+                "accelerometer_range": {
+                    "sensor_id": 2,
+                    "config_id": 3,
+                    "value": parseInt(document.getElementById("Range").value)
+                },
+                "enable_temperature": {
+                    "sensor_id": 3,
+                    "config_id": 1,
+                    "value": 1
+                },
+                "temperature_comm_period": {
+                    "sensor_id": 3,
+                    "config_id": 2,
+                    "value": 1
+                },
+                "temperature_alert": {
+                    "sensor_id": 3,
+                    "config_id": 3,
+                    "value": [
+                        3,
+                        40,
+                        60,
+                        80
+                    ]
+                },
+                "enable_battery": {
+                    "sensor_id": 4,
+                    "config_id": 1,
+                    "value": 1
+                },
+                "battery_comm_period": {
+                    "sensor_id": 4,
+                    "config_id": 2,
+                    "value": 1
+                },
+                "battery_alert": {
+                    "sensor_id": 4,
+                    "config_id": 3,
+                    "value": [
+                        1,
+                        70
+                    ]
+                },
+                "fft_enabled": {
+                    "sensor_id": 5,
+                    "config_id": 1,
+                    "value": 0
+                },
+                "accelerometer_rms_enabled": {
+                    "sensor_id": 5,
+                    "config_id": 2,
+                    "value": 0
+                },
+                "velocity_rms_enabled": {
+                    "sensor_id": 5,
+                    "config_id": 3,
+                    "value": 0
+                },
+                "fft_window_size": {
+                    "sensor_id": 5,
+                    "config_id": 4,
+                    "value": 4
+                },
+                "averaging_size": {
+                    "sensor_id": 5,
+                    "config_id": 5,
+                    "value": 0
+                },
+                "peak_filtering_size": {
+                    "sensor_id": 5,
+                    "config_id": 6,
+                    "value": 0
+                },
+                "band_pass_coefficient": {
+                    "sensor_id": 5,
+                    "config_id": 7,
+                    "value": [
+                        2,
+                        2048
+                    ]
+                },
+                "vrms_sampling_period": {
+                    "sensor_id": 5,
+                    "config_id": 8,
+                    "value": 0
                 }
-            };
-
-            document.getElementById("output").textContent = JSON.stringify(config, null, 4);
+            },
+            required_blob_packets: 105,
+            required_disconnect_packets: 211
+          };
         }
+      }
 
-        function downloadJSON() {
-            const jsonText = document.getElementById("output").textContent;
+      const jsonText = JSON.stringify(config, null, 2);
+      document.getElementById("output").textContent = jsonText;
+    }
 
-            if (!jsonText.trim()) {
-                alert("Please generate JSON first!");
-                return;
-            }
+    function downloadJSON() {
+      const text = document.getElementById("output").textContent;
+      if (!text) {
+        alert("Please generate JSON first.");
+        return;
+      }
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vSens_Settings1.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
-            const blob = new Blob([jsonText], { type: "application/json" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "settings.json";
-            link.click();
-        }
-    </script>
-
+    window.onload = generateMacInputs;
+  </script>
 </body>
 </html>
