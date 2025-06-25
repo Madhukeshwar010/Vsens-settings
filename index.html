@@ -2,24 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome Page</title>
   <style>
-    body {
-      background-color: yellow;
-      font-family: Arial, sans-serif;
+    html, body {
+      height: 100%;
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      overflow: auto; /* Allow page scroll if needed */
+    }
+
+    body {
+      background-image: url('vsens5.png'); /* 👈 Replace with your actual image path */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* Align from top to allow scroll */
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .container {
-      background: white;
+      background: #f2f2f2;
       padding: 30px 40px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       text-align: center;
+      max-width: 500px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     label, select, input, button {
@@ -41,58 +55,67 @@
     }
 
     pre {
-    background: #fff;
-    padding: 10px;
-    border: 1px solid #ccc;
-    width: 100%;
-    max-width: 600px;
-    max-height: 400px;       /* Limit height */
-    overflow-y: auto;         /* Scroll if content exceeds */
-    overflow-x: auto;
-    white-space: pre-wrap;    /* Allow wrapping */
-    word-break: break-word;
-    margin-top: 20px;
-    text-align: left;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 600px;
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 20px;
+      text-align: left;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Vsens Settings Configuration</h2>
+    <h2>Vsens Settings Configuration File Generator</h2>
 
-    <label for="ActiveSensor">Active Sensor:</label>
-    <select id="ActiveSensor">
-      <option value="0">KX</option>
-      <option value="1">AD</option>
-    </select>
+  <label for="ActiveGw" style="font-weight: bold;">Configuring Gateway:</label>
+  <select id="ActiveGw">
+    <option value="0">Compulab</option>
+    <option value="1">vGateway Lite</option>
+  </select>
 
-    <label for="BLEMode">BLE Mode:</label>
+  <label for="ActiveSensor" style="font-weight: bold;">Active Sensor:</label>
+  <select id="ActiveSensor" onchange="toggleSensorDropdowns()">
+    <option value="0" selected>KX</option>
+    <option value="1">ADXL</option>
+  </select>
+
+    <label for="BLEMode" style="font-weight: bold;">BLE Mode:</label>
     <select id="BLEMode">
-      <option value="5">BLE5</option>
-      <option value="4">BLE4</option>
+      <option value="4">BLE5</option>
+      <option value="1">BLE4</option>
     </select>
 
-    <label for="DeviceMode">Device Mode:</label>
+    <label for="DeviceMode" style="font-weight: bold;">Device Mode:</label>
     <select id="DeviceMode">
       <option value="0">CB Raw</option>
       <option value="1">CB VRMS</option>
-      <option value="2">MMC (CC vrms)</option>
-      <option value="3">MMC (CB Raw)</option>
+      <option value="2">CC VRMS (Standard)</option>
+      <option value="3">MMC (CC vrms)</option>
+      <option value="4">MMC (CB Raw)</option>
     </select>
     
-    <label for="requiredSamples">Required Samples:</label>
+    <label for="requiredSamples" style="font-weight: bold;">Required Samples:</label>
     <input type="number" id="requiredSamples" value="8192" />
 
-    <label for="burstinterval">Burst interval:</label>
+    <label for="burstinterval" style="font-weight: bold;">Burst interval:(in min)</label>
     <input type="number" id="burstinterval" value="30" />
 
-    <label for="datatimer">Data timer:</label>
+    <label for="datatimer" style="font-weight: bold;">Data timer:(in min)</label>
     <input type="number" id="datatimer" value="3" />
 
     <div id="kxDropdown">
-    <label for="Samplingfreq1">Sampling Frequency:</label>
+    <label for="Samplingfreq1" style="font-weight: bold;">Sampling Frequency (KX):</label>
     <select id="Samplingfreq1">
-        <option value="14">6400</option>
+        <option value="16">256000</option>
+        <option value="15">12800</option>
+        <option value="14" selected>6400</option>
         <option value="13">3200</option>
         <option value="12">1600</option>
         <option value="11">800</option>
@@ -100,11 +123,17 @@
         <option value="9">200</option>
         <option value="8">100</option>
         <option value="7">50</option>
+        <option value="6">25</option>
+        <option value="5">12.5</option>
+        <option value="4">6.25</option>
+        <option value="3">3.125</option>
+        <option value="2">1.563</option>
+        <option value="1">0.78</option>
     </select>
     </div>
 
     <div id="adDropdown" style="display: none;">
-    <label for="Samplingfreq2">Sampling Frequency:</label>
+    <label for="Samplingfreq2" style="font-weight: bold;">Sampling Frequency (AD):</label>
     <select id="Samplingfreq2">
         <option value="0">4000</option>
         <option value="1">2000</option>
@@ -113,29 +142,35 @@
         <option value="4">250</option>
         <option value="5">125</option>
         <option value="6">62.5</option>
-        <option value="7">50</option>
+        <option value="7">31.25</option>
+        <option value="8">15.625</option>
+        <option value="9">7.813</option>
+        <option value="10">3.906</option>
     </select>
     </div>
 
-    <label for="Range">Sensor Range:</label>
-    <select id="Range">
-    <option value="0">2</option>
-    <option value="1">4</option>
-    <option value="2">8</option>
-    <option value="3">16</option>
-    <option value="4">32</option>
-    </select>
+    <div id="kxRange">
+      <label for="Range" style="font-weight: bold;">Sensor Range (KX):</label>
+      <select id="Range">
+        <option value="0">2g</option> <!-- Set default -->
+        <option value="1">4g</option>
+        <option value="2" selected>8g</option>
+        <option value="3">16g</option>
+        <option value="4">32g</option>
+        <option value="5">64g</option>
+      </select>
+    </div>
 
-    <label for="Range1">Sensor Range:</label>
-    <select id="Range1">
-    <option value="0">2</option>
-    <option value="1">4</option>
-    <option value="2">8</option>
-    <option value="3">16</option>
-    <option value="4">32</option>
-    </select>
+    <div id="adRange1" style="display: none;">
+      <label for="Range1" style="font-weight: bold;">Sensor Range (AD):</label>
+      <select id="Range1">
+        <option value="1" selected>2g</option> <!-- Set default -->
+        <option value="2">4g</option>
+        <option value="3">8g</option>
+      </select>
+    </div>
 
-    <label for="numSensors">Number of Sensors:</label>
+    <label for="numSensors" style="font-weight: bold;">Number of Sensors:</label>
     <input type="number" id="numSensors" value="1" oninput="generateMacInputs()" />
 
     <div id="macInputsContainer"></div>
@@ -143,10 +178,37 @@
     <button onclick="generateJSON()">Generate JSON</button>
     <button onclick="downloadJSON()">Download JSON</button>
 
+    <div style="position: relative; text-align: right;">
+      <button onclick="copyJSON()" style="position: absolute; top: -30px; right: 0;">Copy</button>
+    </div>
     <pre id="output"></pre>
   </div>
 
   <script>
+
+      function copyJSON() {
+        const output = document.getElementById("output");
+        const text = output.textContent;
+
+        if (!text.trim()) {
+          alert("Nothing to copy. Please generate JSON first.");
+          return;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+          alert("JSON copied to clipboard!");
+        }).catch(err => {
+          alert("Failed to copy: " + err);
+        });
+      }
+
+      function toggleSensorDropdowns() {
+      const activeSensor = document.getElementById("ActiveSensor").value;
+      document.getElementById("kxDropdown").style.display = activeSensor === "0" ? "block" : "none";
+      document.getElementById("adDropdown").style.display = activeSensor === "1" ? "block" : "none";
+      document.getElementById("kxRange").style.display = activeSensor === "0" ? "block" : "none";
+      document.getElementById("adRange1").style.display = activeSensor === "1" ? "block" : "none";
+    }
     function generateMacInputs() {
       const container = document.getElementById("macInputsContainer");
       const count = parseInt(document.getElementById("numSensors").value) || 0;
@@ -155,7 +217,7 @@
       for (let i = 0; i < count; i++) {
         const label = document.createElement("label");
         label.textContent = `Sensor ${i + 1} MAC: `;
-
+        label.style.fontWeight = "bold";
         const input = document.createElement("input");
         input.type = "text";
         input.placeholder = "e.g., ED:76:3E:F2:5D:E1";
@@ -167,130 +229,717 @@
     }
 
     function generateJSON() {
-      const deviceModeInput = parseInt(document.getElementById("DeviceMode").value);
-      const deviceMode = [0, 1, 2, 3].includes(deviceModeInput) ? 3 : 2;
-      const config = {
-        mode_settings: {
-          BLE_mode: parseInt(document.getElementById("BLEMode").value),
-          device_mode: deviceMode,
-          scan_timer: 10,
-          required_samples: parseInt(document.getElementById("requiredSamples").value),
-          data_timer: parseInt(document.getElementById("datatimer").value),
-          connected_burst_interval: parseInt(document.getElementById("burstinterval").value)
-        },
-        sensors: {}
+      
+      let gateway_type = parseInt(document.getElementById("ActiveGw").value);
+      let deviceModeInput = parseInt(document.getElementById("DeviceMode").value);
+      let deviceMode = [0, 1, 3, 4].includes(deviceModeInput) ? 3 : 2;
+
+      let mode_settings = {
+        BLE_mode: parseInt(document.getElementById("BLEMode").value),
+        device_mode: deviceMode,
+        required_samples: parseInt(document.getElementById("requiredSamples").value),
+        scan_timer: 10,
+        data_timer: parseInt(document.getElementById("datatimer").value),
+        connected_burst_interval: parseInt(document.getElementById("burstinterval").value)
       };
 
+      let config;
+
+      if (gateway_type === 0) {
+        config = {
+          data_corrupt_thresh_pct: 60,
+          vSens: {
+            mode_settings: mode_settings,
+            debug_logging_settings: 1,
+            sensors: {}
+          }
+        };
+      } else {
+        config = {
+            mode_settings: mode_settings,
+            sensors: {}
+        };
+      }
+
+      let activesensor = parseInt(document.getElementById("ActiveSensor").value);
+      let activemode = parseInt(document.getElementById("DeviceMode").value);
+      
+      let samplingfreq, sensorrange,averaging;
+
+      if(activesensor=="0")
+      {
+        samplingfreq = parseInt(document.getElementById("Samplingfreq1").value);
+        sensorrange = parseInt(document.getElementById("Range").value);
+      }
+      if(activesensor=="1")
+      {
+        samplingfreq = parseInt(document.getElementById("Samplingfreq2").value);
+        sensorrange = parseInt(document.getElementById("Range1").value);
+      }
       const sensorCount = parseInt(document.getElementById("numSensors").value);
       for (let i = 0; i < sensorCount; i++) {
         const mac = document.getElementById(`sensorMac${i + 1}`).value.trim();
-        if (mac) {
+        if (mac && activesensor==0 && gateway_type ===0) {
+          let sampling_freq,fft,sampling_rate,cc_vrms,arms_enabled,vrms_enabled;
+          if(activemode==4)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;       
+          }
+          else if(activemode==3)
+          {
+            sampling_freq=60;
+            fft=0; 
+            averaging=4;
+            sampling_rate=1;
+            cc_vrms=2;
+            arms_enabled=0;
+            vrms_enabled=1; 
+          }
+          else if(activemode==0)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;        
+          }
+          else if(activemode==1)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=1;  
+            arms_enabled=0; 
+            vrms_enabled=1;   
+          }
+          else if(activemode==2)
+          {
+            sampling_freq=0;
+            fft=0;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=2;   
+            arms_enabled=0;  
+            vrms_enabled=1; 
+          }
+          config.vSens.sensors[mac] = {
+                  configurations: {
+                      "enable_accelerometer": {
+                          "sensor_id": 2,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "acc_data_type": {
+                          "sensor_id": 1,
+                          "config_id": 6,
+                          "value": cc_vrms                                                            
+                      },
+                      "accelerometer_sampling_rate": {
+                          "sensor_id": 2,
+                          "config_id": 2,
+                          "value": samplingfreq
+                      },
+                      "accelerometer_range": {
+                          "sensor_id": 2,
+                          "config_id": 3,
+                          "value": sensorrange
+                      },
+                      "enable_temperature": {
+                          "sensor_id": 3,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "temperature_comm_period": {
+                          "sensor_id": 3,
+                          "config_id": 2,
+                          "value": 1
+                      },
+                      "temperature_alert": {
+                          "sensor_id": 3,
+                          "config_id": 3,
+                          "value": [
+                              3,
+                              40,
+                              60,
+                              80
+                          ]
+                      },
+                      "enable_battery": {
+                          "sensor_id": 4,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "battery_comm_period": {
+                          "sensor_id": 4,
+                          "config_id": 2,
+                          "value": 1
+                      },
+                      "battery_alert": {
+                          "sensor_id": 4,
+                          "config_id": 3,
+                          "value": [
+                              1,
+                              70
+                          ]
+                      },
+                      "fft_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 1,
+                          "value": fft
+                      },
+                      "accelerometer_rms_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 2,
+                          "value": arms_enabled
+                      },
+                      "velocity_rms_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 3,
+                          "value": vrms_enabled
+                      },
+                      "fft_window_size": {
+                          "sensor_id": 5,
+                          "config_id": 4,
+                          "value": 4
+                      },
+                      "averaging_size": {
+                          "sensor_id": 5,
+                          "config_id": 5,
+                          "value": averaging
+                      },
+                      "peak_filtering_size": {
+                          "sensor_id": 5,
+                          "config_id": 6,
+                          "value": 0
+                      },
+                      "band_pass_coefficient": {
+                          "sensor_id": 5,
+                          "config_id": 7,
+                          "value": [
+                              2,
+                              2048
+                          ]
+                      },
+                      "vrms_sampling_period": {
+                          "sensor_id": 5,
+                          "config_id": 8,
+                          "value": sampling_freq
+                      },
+                      "vrms_sample_rate": {
+                          "sensor_id": 5,
+                          "config_id": 9,
+                          "value": sampling_rate
+                      }
+                  },
+                  required_blob_packets: 205,
+                  required_disconnect_packets: 205
+                };
+          }
+
+          if (mac && activesensor==0 && gateway_type ===1) {
+          let sampling_freq,fft,sampling_rate,cc_vrms,arms_enabled,vrms_enabled;
+          if(activemode==4)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;       
+          }
+          else if(activemode==3)
+          {
+            sampling_freq=60;
+            fft=0; 
+            averaging=4;
+            sampling_rate=1;
+            cc_vrms=2;
+            arms_enabled=0;
+            vrms_enabled=1; 
+          }
+          else if(activemode==0)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;        
+          }
+          else if(activemode==1)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=1;  
+            arms_enabled=0; 
+            vrms_enabled=1;   
+          }
+          else if(activemode==2)
+          {
+            sampling_freq=0;
+            fft=0;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=2;   
+            arms_enabled=0;  
+            vrms_enabled=1; 
+          }
           config.sensors[mac] = {
-            configurations: {
-                "enable_accelerometer": {
-                    "sensor_id": 2,
-                    "config_id": 1,
-                    "value": 1
-                },
-                "acc_data_type": {
-                    "sensor_id": 1,
-                    "config_id": 6,
-                    "value": 1
-                },
-                "accelerometer_sampling_rate": {
-                    "sensor_id": 2,
-                    "config_id": 2,
-                    "value": parseInt(document.getElementById("Samplingfreq1").value)
-                },
-                "accelerometer_range": {
-                    "sensor_id": 2,
-                    "config_id": 3,
-                    "value": parseInt(document.getElementById("Range").value)
-                },
-                "enable_temperature": {
-                    "sensor_id": 3,
-                    "config_id": 1,
-                    "value": 1
-                },
-                "temperature_comm_period": {
-                    "sensor_id": 3,
-                    "config_id": 2,
-                    "value": 1
-                },
-                "temperature_alert": {
-                    "sensor_id": 3,
-                    "config_id": 3,
-                    "value": [
-                        3,
-                        40,
-                        60,
-                        80
-                    ]
-                },
-                "enable_battery": {
-                    "sensor_id": 4,
-                    "config_id": 1,
-                    "value": 1
-                },
-                "battery_comm_period": {
-                    "sensor_id": 4,
-                    "config_id": 2,
-                    "value": 1
-                },
-                "battery_alert": {
-                    "sensor_id": 4,
-                    "config_id": 3,
-                    "value": [
-                        1,
-                        70
-                    ]
-                },
-                "fft_enabled": {
-                    "sensor_id": 5,
-                    "config_id": 1,
-                    "value": 0
-                },
-                "accelerometer_rms_enabled": {
-                    "sensor_id": 5,
-                    "config_id": 2,
-                    "value": 0
-                },
-                "velocity_rms_enabled": {
-                    "sensor_id": 5,
-                    "config_id": 3,
-                    "value": 0
-                },
-                "fft_window_size": {
-                    "sensor_id": 5,
-                    "config_id": 4,
-                    "value": 4
-                },
-                "averaging_size": {
-                    "sensor_id": 5,
-                    "config_id": 5,
-                    "value": 0
-                },
-                "peak_filtering_size": {
-                    "sensor_id": 5,
-                    "config_id": 6,
-                    "value": 0
-                },
-                "band_pass_coefficient": {
-                    "sensor_id": 5,
-                    "config_id": 7,
-                    "value": [
-                        2,
-                        2048
-                    ]
-                },
-                "vrms_sampling_period": {
-                    "sensor_id": 5,
-                    "config_id": 8,
-                    "value": 0
-                }
-            },
-            required_blob_packets: 105,
-            required_disconnect_packets: 211
+                  configurations: {
+                      "enable_accelerometer": {
+                          "sensor_id": 2,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "acc_data_type": {
+                          "sensor_id": 1,
+                          "config_id": 6,
+                          "value": cc_vrms                                                            
+                      },
+                      "accelerometer_sampling_rate": {
+                          "sensor_id": 2,
+                          "config_id": 2,
+                          "value": samplingfreq
+                      },
+                      "accelerometer_range": {
+                          "sensor_id": 2,
+                          "config_id": 3,
+                          "value": sensorrange
+                      },
+                      "enable_temperature": {
+                          "sensor_id": 3,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "temperature_comm_period": {
+                          "sensor_id": 3,
+                          "config_id": 2,
+                          "value": 1
+                      },
+                      "temperature_alert": {
+                          "sensor_id": 3,
+                          "config_id": 3,
+                          "value": [
+                              3,
+                              40,
+                              60,
+                              80
+                          ]
+                      },
+                      "enable_battery": {
+                          "sensor_id": 4,
+                          "config_id": 1,
+                          "value": 1
+                      },
+                      "battery_comm_period": {
+                          "sensor_id": 4,
+                          "config_id": 2,
+                          "value": 1
+                      },
+                      "battery_alert": {
+                          "sensor_id": 4,
+                          "config_id": 3,
+                          "value": [
+                              1,
+                              70
+                          ]
+                      },
+                      "fft_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 1,
+                          "value": fft
+                      },
+                      "accelerometer_rms_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 2,
+                          "value": arms_enabled
+                      },
+                      "velocity_rms_enabled": {
+                          "sensor_id": 5,
+                          "config_id": 3,
+                          "value": vrms_enabled
+                      },
+                      "fft_window_size": {
+                          "sensor_id": 5,
+                          "config_id": 4,
+                          "value": 4
+                      },
+                      "averaging_size": {
+                          "sensor_id": 5,
+                          "config_id": 5,
+                          "value": averaging
+                      },
+                      "peak_filtering_size": {
+                          "sensor_id": 5,
+                          "config_id": 6,
+                          "value": 0
+                      },
+                      "band_pass_coefficient": {
+                          "sensor_id": 5,
+                          "config_id": 7,
+                          "value": [
+                              2,
+                              2048
+                          ]
+                      },
+                      "vrms_sampling_period": {
+                          "sensor_id": 5,
+                          "config_id": 8,
+                          "value": sampling_freq
+                      },
+                      "vrms_sample_rate": {
+                          "sensor_id": 5,
+                          "config_id": 9,
+                          "value": sampling_rate
+                      }
+                  },
+                  required_blob_packets: 205,
+                  required_disconnect_packets: 205
+                };
+          }
+
+        if (mac && activesensor==1 && gateway_type===0) {
+          let sampling_freq,fft,sampling_rate,cc_vrms,arms_enabled,vrms_enabled;
+          if(activemode==4)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;       
+          }
+          else if(activemode==3)
+          {
+            sampling_freq=60;
+            fft=0; 
+            averaging=4;
+            sampling_rate=1;
+            cc_vrms=2;
+            arms_enabled=0;
+            vrms_enabled=1; 
+          }
+          else if(activemode==0)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;        
+          }
+          else if(activemode==1)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=1;  
+            arms_enabled=0; 
+            vrms_enabled=1;   
+          }
+          else if(activemode==2)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=2;   
+            arms_enabled=1;  
+            vrms_enabled=1; 
+          }
+          config.vSens.sensors[mac] = {
+                  configurations: {
+                  "enable_accelerometer": {
+                      "sensor_id": 6,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "acc_data_type": {
+                      "sensor_id": 1,
+                      "config_id": 6,
+                      "value": cc_vrms
+                  },
+                  "accelerometer_sampling_rate": {
+                      "sensor_id": 6,
+                      "config_id": 2,
+                      "value": samplingfreq
+                  },
+                  "accelerometer_range": {
+                      "sensor_id": 6,
+                      "config_id": 3,
+                      "value": sensorrange
+                  },
+                  "enable_temperature": {
+                      "sensor_id": 3,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "temperature_comm_period": {
+                      "sensor_id": 3,
+                      "config_id": 2,
+                      "value": 1
+                  },
+                  "temperature_alert": {
+                      "sensor_id": 3,
+                      "config_id": 3,
+                      "value": [
+                          3,
+                          40,
+                          60,
+                          80
+                      ]
+                  },
+                  "enable_battery": {
+                      "sensor_id": 4,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "battery_comm_period": {
+                      "sensor_id": 4,
+                      "config_id": 2,
+                      "value": 1
+                  },
+                  "battery_alert": {
+                      "sensor_id": 4,
+                      "config_id": 3,
+                      "value": [
+                          1,
+                          70
+                      ]
+                  },
+                  "fft_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 1,
+                      "value": fft
+                  },
+                  "accelerometer_rms_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 2,
+                      "value": arms_enabled
+                  },
+                  "velocity_rms_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 3,
+                      "value": vrms_enabled
+                  },
+                  "fft_window_size": {
+                      "sensor_id": 5,
+                      "config_id": 4,
+                      "value": 4
+                  },
+                  "averaging_size": {
+                      "sensor_id": 5,
+                      "config_id": 5,
+                      "value": averaging
+                  },
+                  "peak_filtering_size": {
+                      "sensor_id": 5,
+                      "config_id": 6,
+                      "value": 0
+                  },
+                  "band_pass_coefficient": {
+                      "sensor_id": 5,
+                      "config_id": 7,
+                      "value": [
+                          3,
+                          2048
+                      ]
+                  },
+              "vrms_sampling_period": {
+                  "sensor_id": 5,
+                  "config_id": 8,
+                  "value": sampling_freq
+              },
+              "vrms_sample_rate": {
+                  "sensor_id": 5,
+                  "config_id": 9,
+                  "value": sampling_rate
+              }
+          },
+          required_blob_packets: 316,
+          required_disconnect_packets: 316
+          };
+        }
+
+        if (mac && activesensor==1 && gateway_type===1) {
+          let sampling_freq,fft,sampling_rate,cc_vrms,arms_enabled,vrms_enabled;
+          if(activemode==4)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;       
+          }
+          else if(activemode==3)
+          {
+            sampling_freq=60;
+            fft=0; 
+            averaging=4;
+            sampling_rate=1;
+            cc_vrms=2;
+            arms_enabled=0;
+            vrms_enabled=1; 
+          }
+          else if(activemode==0)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;        
+          }
+          else if(activemode==1)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=1;  
+            arms_enabled=0; 
+            vrms_enabled=1;   
+          }
+          else if(activemode==2)
+          {
+            sampling_freq=0;
+            fft=1;   
+            averaging=4;   
+            sampling_rate=0;  
+            cc_vrms=2;   
+            arms_enabled=1;  
+            vrms_enabled=1; 
+          }
+          config.sensors[mac] = {
+                  configurations: {
+                  "enable_accelerometer": {
+                      "sensor_id": 6,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "acc_data_type": {
+                      "sensor_id": 1,
+                      "config_id": 6,
+                      "value": cc_vrms
+                  },
+                  "accelerometer_sampling_rate": {
+                      "sensor_id": 6,
+                      "config_id": 2,
+                      "value": samplingfreq
+                  },
+                  "accelerometer_range": {
+                      "sensor_id": 6,
+                      "config_id": 3,
+                      "value": sensorrange
+                  },
+                  "enable_temperature": {
+                      "sensor_id": 3,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "temperature_comm_period": {
+                      "sensor_id": 3,
+                      "config_id": 2,
+                      "value": 1
+                  },
+                  "temperature_alert": {
+                      "sensor_id": 3,
+                      "config_id": 3,
+                      "value": [
+                          3,
+                          40,
+                          60,
+                          80
+                      ]
+                  },
+                  "enable_battery": {
+                      "sensor_id": 4,
+                      "config_id": 1,
+                      "value": 1
+                  },
+                  "battery_comm_period": {
+                      "sensor_id": 4,
+                      "config_id": 2,
+                      "value": 1
+                  },
+                  "battery_alert": {
+                      "sensor_id": 4,
+                      "config_id": 3,
+                      "value": [
+                          1,
+                          70
+                      ]
+                  },
+                  "fft_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 1,
+                      "value": fft
+                  },
+                  "accelerometer_rms_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 2,
+                      "value": arms_enabled
+                  },
+                  "velocity_rms_enabled": {
+                      "sensor_id": 5,
+                      "config_id": 3,
+                      "value": vrms_enabled
+                  },
+                  "fft_window_size": {
+                      "sensor_id": 5,
+                      "config_id": 4,
+                      "value": 4
+                  },
+                  "averaging_size": {
+                      "sensor_id": 5,
+                      "config_id": 5,
+                      "value": averaging
+                  },
+                  "peak_filtering_size": {
+                      "sensor_id": 5,
+                      "config_id": 6,
+                      "value": 0
+                  },
+                  "band_pass_coefficient": {
+                      "sensor_id": 5,
+                      "config_id": 7,
+                      "value": [
+                          3,
+                          2048
+                      ]
+                  },
+              "vrms_sampling_period": {
+                  "sensor_id": 5,
+                  "config_id": 8,
+                  "value": sampling_freq
+              },
+              "vrms_sample_rate": {
+                  "sensor_id": 5,
+                  "config_id": 9,
+                  "value": sampling_rate
+              }
+          },
+          required_blob_packets: 316,
+          required_disconnect_packets: 316
           };
         }
       }
@@ -309,7 +958,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "vSens_Settings1.json";
+      a.download = "vSens_Settings.json";
       a.click();
       URL.revokeObjectURL(url);
     }
