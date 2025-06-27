@@ -13,7 +13,7 @@
     }
 
     body {
-      background-image: url('vsens5.png'); /* 👈 Replace with your actual image path */
+      background-image: url('vsens_kx.png'); 
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -72,11 +72,11 @@
 </head>
 <body>
   <div class="container">
-    <h2>Vsens Settings Configuration File Generator</h2>
+    <h2>vSens Settings Configuration File Generator</h2>
 
   <label for="ActiveGw" style="font-weight: bold;">Configuring Gateway:</label>
-  <select id="ActiveGw">
-    <option value="0">Compulab</option>
+  <select id="ActiveGw" onchange="toggledeviceMode()">
+    <option value="0" selected>Compulab</option>
     <option value="1">vGateway Lite</option>
   </select>
 
@@ -92,15 +92,30 @@
       <option value="1">BLE4</option>
     </select>
 
-    <label for="DeviceMode" style="font-weight: bold;">Device Mode:</label>
-    <select id="DeviceMode">
-      <option value="0">CB Raw</option>
+    <div id="DeviceMode1">
+    <label for="DeviceModeKX" style="font-weight: bold;">Device Mode (KX):</label>
+    <select id="DeviceModeKX">
+      <option value="0"selected>CB Raw</option>
       <option value="1">CB VRMS</option>
       <option value="2">CC VRMS (Standard)</option>
       <option value="3">MMC (CC vrms)</option>
       <option value="4">MMC (CB Raw)</option>
+      <option value="5">CC Analytics</option>
+      <option value="6">CC Raw</option>      
     </select>
+    </div>
     
+    <div id="DeviceMode2" style="display: none;">
+    <label for="DeviceModeAD" style="font-weight: bold;">Device Mode (AD):</label>
+    <select id="DeviceModeAD">
+      <option value="0">CB Raw</option>
+      <option value="1">CB VRMS</option>
+      <option value="2">CC VRMS (Standard)</option>
+      <option value="3">MMC (CC vrms)</option>
+      <option value="4">MMC (CB Raw)</option>      
+    </select>
+    </div>
+
     <label for="requiredSamples" style="font-weight: bold;">Required Samples:</label>
     <input type="number" id="requiredSamples" value="8192" />
 
@@ -164,8 +179,8 @@
     <div id="adRange1" style="display: none;">
       <label for="Range1" style="font-weight: bold;">Sensor Range (AD):</label>
       <select id="Range1">
-        <option value="1" selected>2g</option> <!-- Set default -->
-        <option value="2">4g</option>
+        <option value="1">2g</option> <!-- Set default -->
+        <option value="2"selected>4g</option>
         <option value="3">8g</option>
       </select>
     </div>
@@ -202,12 +217,19 @@
         });
       }
 
+      function toggledeviceMode() {
+      const devicemode = document.getElementById("ActiveGw").value;
+      document.getElementById("DeviceMode1").style.display = devicemode === "0" ? "block" : "none";
+      document.getElementById("DeviceMode2").style.display = devicemode === "1" ? "block" : "none";      
+    }
+
       function toggleSensorDropdowns() {
       const activeSensor = document.getElementById("ActiveSensor").value;
       document.getElementById("kxDropdown").style.display = activeSensor === "0" ? "block" : "none";
       document.getElementById("adDropdown").style.display = activeSensor === "1" ? "block" : "none";
       document.getElementById("kxRange").style.display = activeSensor === "0" ? "block" : "none";
       document.getElementById("adRange1").style.display = activeSensor === "1" ? "block" : "none";
+      document.body.style.backgroundImage = activeSensor === "1"? "url('vsens_ad.png')": "url('vsens_kx.png')";
     }
     function generateMacInputs() {
       const container = document.getElementById("macInputsContainer");
@@ -230,9 +252,19 @@
 
     function generateJSON() {
       
+      let deviceModeInput;
+      let ActiveMode = parseInt(document.getElementById("ActiveSensor").value);
+
+      if (ActiveMode === 0) {
+        deviceModeInput = parseInt(document.getElementById("DeviceModeKX").value);
+      }
+      if (ActiveMode === 1) {
+        deviceModeInput = parseInt(document.getElementById("DeviceModeAD").value);
+      }
+
       let gateway_type = parseInt(document.getElementById("ActiveGw").value);
-      let deviceModeInput = parseInt(document.getElementById("DeviceMode").value);
-      let deviceMode = [0, 1, 3, 4].includes(deviceModeInput) ? 3 : 2;
+
+      deviceMode = [0, 1, 4].includes(deviceModeInput) ? 3 : 2;
 
       let mode_settings = {
         BLE_mode: parseInt(document.getElementById("BLEMode").value),
@@ -262,25 +294,45 @@
       }
 
       let activesensor = parseInt(document.getElementById("ActiveSensor").value);
-      let activemode = parseInt(document.getElementById("DeviceMode").value);
-      
-      let samplingfreq, sensorrange,averaging;
+      let samplingfreq, sensorrange,averaging, activemode;
 
       if(activesensor=="0")
       {
         samplingfreq = parseInt(document.getElementById("Samplingfreq1").value);
         sensorrange = parseInt(document.getElementById("Range").value);
+        activemode = parseInt(document.getElementById("DeviceModeKX").value);
       }
       if(activesensor=="1")
       {
         samplingfreq = parseInt(document.getElementById("Samplingfreq2").value);
         sensorrange = parseInt(document.getElementById("Range1").value);
+        activemode = parseInt(document.getElementById("DeviceModeAD").value);
       }
       const sensorCount = parseInt(document.getElementById("numSensors").value);
       for (let i = 0; i < sensorCount; i++) {
         const mac = document.getElementById(`sensorMac${i + 1}`).value.trim();
         if (mac && activesensor==0 && gateway_type ===0) {
           let sampling_freq,fft,sampling_rate,cc_vrms,arms_enabled,vrms_enabled;
+          if(activemode==6)
+          {
+            sampling_freq=0;
+            fft=0;    
+            averaging=0;
+            sampling_rate=0; 
+            cc_vrms=1; 
+            arms_enabled=0;
+            vrms_enabled=0;       
+          }
+          if(activemode==5)
+          {
+            sampling_freq=0;
+            fft=1;    
+            averaging=4;
+            sampling_rate=0; 
+            cc_vrms=2; 
+            arms_enabled=1;
+            vrms_enabled=1;       
+          }
           if(activemode==4)
           {
             sampling_freq=0;
