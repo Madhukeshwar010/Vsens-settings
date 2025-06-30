@@ -82,7 +82,7 @@
 
   <label for="ActiveSensor" style="font-weight: bold;">Active Sensor:</label>
   <select id="ActiveSensor" onchange="toggleSensorDropdowns()">
-    <option value="0" selected>KX</option>
+    <option value="0">KX</option>
     <option value="1">ADXL</option>
   </select>
 
@@ -93,8 +93,8 @@
     </select>
 
     <div id="DeviceMode1">
-    <label for="DeviceModeKX" style="font-weight: bold;">Device Mode (KX):</label>
-    <select id="DeviceModeKX">
+    <label for="DeviceModeCompulab" style="font-weight: bold;">Device Mode (KX):</label>
+    <select id="DeviceModeCompulab">
       <option value="0"selected>CB Raw</option>
       <option value="1">CB VRMS</option>
       <option value="2">CC VRMS (Standard)</option>
@@ -106,9 +106,9 @@
     </div>
     
     <div id="DeviceMode2" style="display: none;">
-    <label for="DeviceModeAD" style="font-weight: bold;">Device Mode (AD):</label>
-    <select id="DeviceModeAD">
-      <option value="0">CB Raw</option>
+    <label for="DeviceModevGw_lite" style="font-weight: bold;">Device Mode (AD):</label>
+    <select id="DeviceModevGw_lite">
+      <option value="0"selected>CB Raw</option>
       <option value="1">CB VRMS</option>
       <option value="2">CC VRMS (Standard)</option>
       <option value="3">MMC (CC vrms)</option>
@@ -256,12 +256,11 @@
       let ActiveMode = parseInt(document.getElementById("ActiveSensor").value);
 
       if (ActiveMode === 0) {
-        deviceModeInput = parseInt(document.getElementById("DeviceModeKX").value);
+        deviceModeInput = parseInt(document.getElementById("DeviceModeCompulab").value);
       }
       if (ActiveMode === 1) {
-        deviceModeInput = parseInt(document.getElementById("DeviceModeAD").value);
+        deviceModeInput = parseInt(document.getElementById("DeviceModevGw_lite").value);
       }
-
       let gateway_type = parseInt(document.getElementById("ActiveGw").value);
 
       deviceMode = [0, 1, 4].includes(deviceModeInput) ? 3 : 2;
@@ -294,19 +293,34 @@
       }
 
       let activesensor = parseInt(document.getElementById("ActiveSensor").value);
+      let active_gw = parseInt(document.getElementById("ActiveGw").value);
       let samplingfreq, sensorrange,averaging, activemode;
 
       if(activesensor=="0")
       {
         samplingfreq = parseInt(document.getElementById("Samplingfreq1").value);
         sensorrange = parseInt(document.getElementById("Range").value);
-        activemode = parseInt(document.getElementById("DeviceModeKX").value);
+        if(active_gw==0)
+        {
+          activemode = parseInt(document.getElementById("DeviceModeCompulab").value);
+        }
+        else
+        {
+          activemode = parseInt(document.getElementById("DeviceModevGw_lite").value);
+        }
       }
       if(activesensor=="1")
       {
         samplingfreq = parseInt(document.getElementById("Samplingfreq2").value);
         sensorrange = parseInt(document.getElementById("Range1").value);
-        activemode = parseInt(document.getElementById("DeviceModeAD").value);
+        if(active_gw==0)
+        {
+          activemode = parseInt(document.getElementById("DeviceModeCompulab").value);
+        }
+        else
+        {
+          activemode = parseInt(document.getElementById("DeviceModevGw_lite").value);
+        }
       }
       const sensorCount = parseInt(document.getElementById("numSensors").value);
       for (let i = 0; i < sensorCount; i++) {
