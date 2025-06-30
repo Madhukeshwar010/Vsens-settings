@@ -253,12 +253,12 @@
     function generateJSON() {
       
       let deviceModeInput;
-      let ActiveMode = parseInt(document.getElementById("ActiveGw").value);
+      let gateway_type = parseInt(document.getElementById("ActiveGw").value);
 
-      if (ActiveMode === 0) {
+      if (gateway_type === 0) {
         deviceModeInput = parseInt(document.getElementById("DeviceModeCompulab").value);
       }
-      if (ActiveMode === 1) {
+      if (gateway_type === 1) {
         deviceModeInput = parseInt(document.getElementById("DeviceModevGw_lite").value);
       }
 
