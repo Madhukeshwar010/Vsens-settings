@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Settings</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+    }
+
+    body {
+      background-image: url('vsens_kx.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      background: #f2f2f2;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    label, select, input, button {
+      display: block;
+      margin: 10px auto;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 600px;
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 20px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Master vSens Settings Configuration File Generator</h2>
+
+    <label for="ActiveGw" style="font-weight: bold;">Configuring Gateway:</label>
+    <select id="ActiveGw">
+      <option value="0" selected>Compulab</option>
+      <option value="1">vGateway Lite</option>
+    </select>
+
+    <label for="DeviceMode" style="font-weight: bold;">Device Modes Available:</label>
+    <select id="DeviceMode">
+      <option value="0" selected>MMC (both CC & CB)</option>
+      <option value="1">CB Only</option>
+      <option value="2">CC Only</option>   
+    </select>
+
+    <label for="switch_time" style="font-weight: bold;">Switch Timer Timeout (in min):</label>
+    <input type="number" id="switch_time" value="30" />
+
+    <label for="reconnect_attempt" style="font-weight: bold;">Total Reconnect Attempt:</label>
+    <input type="number" id="reconnect_attempt" value="5" />
+
+    <button onclick="generateJSON()">Generate JSON</button>
+    <button onclick="downloadJSON()">Download JSON</button>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+      <button onclick="goBack()">← Back</button>
+      <button onclick="copyJSON()">Copy</button>
+    </div>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script>
+    function copyJSON() {
+      const output = document.getElementById("output");
+      const text = output.textContent;
+
+      if (!text.trim()) {
+        alert("Nothing to copy. Please generate JSON first.");
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("JSON copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy: " + err);
+      });
+    }
+
+    function downloadJSON() {
+      const text = document.getElementById("output").textContent;
+      if (!text) {
+        alert("Please generate JSON first.");
+        return;
+      }
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Master_Settings.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function goBack() {
+      window.location.href = "index.html"; // change this if needed
+    }
+
+    function generateJSON() {
+      const gateway_type = parseInt(document.getElementById("ActiveGw").value);
+      const deviceModeInput = parseInt(document.getElementById("DeviceMode").value);
+      const switch_time = parseInt(document.getElementById("switch_time").value);
+      const reconnect_attempt = parseInt(document.getElementById("reconnect_attempt").value);
+
+      let outer_config;
+
+      if (gateway_type === 0) {
+        outer_config = {
+          "broker_details": {
+            "broker_ip": "127.0.0.1",
+            "broker_port": 8168,
+            "broker_username": "None",
+            "broker_password": "None",
+            "ssl_auth_enabled": 0,
+            "ssl_auth_details": {
+              "ca_certtificate": "",
+              "client_certificate": "",
+              "client_key_file": "",
+              "keyfile_password": ""
+            }
+          },
+          "microservice_name": "vSens",
+          "gateway_subscribe_topics": ["ServerRequest"],
+          "gateway_rawdata_publish_topic": "GatewayData",
+          "gateway_logs_publish_topic": "GatewayLog",
+          "gateway_reply_publish_topic": "GatewayReply",
+          "gateway_request_publish_topic": "GatewayRequest",
+          config_files: {}
+        };
+      } else {
+        outer_config = {
+          config_files: {}
+        };
+      }
+
+      if (deviceModeInput === 0) { // MMC both CB and CC
+        outer_config.config_files = {
+            "vSens_Settings1.json": {
+              "config_file_name": "vSens_Settings1.json",
+              "connect_sequence": 0,
+              "switch_config_timeout_in_min": switch_time,
+              "switch_config_condition": 0,
+              "reconnect_attempts": reconnect_attempt,
+              "next_config_file_name": "vSens_Settings2.json"
+            },
+            "vSens_Settings2.json": {
+              "config_file_name": "vSens_Settings2.json",
+              "connect_sequence": 1,
+              "switch_config_timeout_in_min": switch_time,
+              "switch_config_condition": 1,
+              "reconnect_attempts": reconnect_attempt,
+              "next_config_file_name": "vSens_Settings1.json"
+            }
+        };
+      } else if (deviceModeInput === 2) { // CB Only
+        outer_config.config_files = {
+            "vSens_Settings1.json": {
+              "config_file_name": "vSens_Settings1.json",
+              "connect_sequence": 0,
+              "switch_config_timeout_in_min": 0,
+              "switch_config_condition": 0,
+              "reconnect_attempts": reconnect_attempt,
+              "next_config_file_name": "vSens_Settings1.json"
+          }
+        };
+      } else if (deviceModeInput === 1) { // CC Only
+        outer_config.config_files = {
+            "vSens_Settings1.json": {
+              "config_file_name": "vSens_Settings1.json",
+              "connect_sequence": 1,
+              "switch_config_timeout_in_min": 0,
+              "switch_config_condition": 1,
+              "reconnect_attempts": reconnect_attempt,
+              "next_config_file_name": "vSens_Settings1.json"
+            }
+        };
+      }
+
+      document.getElementById("output").textContent = JSON.stringify(outer_config, null, 2);
+    }
+  </script>
+</body>
+</html>

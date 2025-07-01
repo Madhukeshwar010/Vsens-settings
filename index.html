@@ -192,7 +192,7 @@
 
     <button onclick="generateJSON()">Generate JSON</button>
     <button onclick="downloadJSON()">Download JSON</button>
-
+    <button onclick="goToMasterSettings()">Master Settings</button>
     <div style="position: relative; text-align: right;">
       <button onclick="copyJSON()" style="position: absolute; top: -30px; right: 0;">Copy</button>
     </div>
@@ -200,6 +200,10 @@
   </div>
 
   <script>
+
+      function goToMasterSettings() {
+        window.location.href = "master_settings.html"; // Change this to the actual page name
+      }
 
       function copyJSON() {
         const output = document.getElementById("output");
