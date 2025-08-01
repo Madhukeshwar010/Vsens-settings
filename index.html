@@ -13,7 +13,7 @@
     }
 
     body {
-      background-image: url('vsens_kx.png'); 
+      background-image: url('cgw_KX.png'); 
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -75,7 +75,7 @@
     <h2>vSens Settings Configuration File Generator</h2>
 
   <label for="ActiveGw" style="font-weight: bold;">Configuring Gateway:</label>
-  <select id="ActiveGw" onchange="toggledeviceMode()">
+  <select id="ActiveGw" onchange="toggledeviceMode(); toggleSensorDropdowns()">
     <option value="0" selected>Compulab</option>
     <option value="1">vGateway Lite</option>
   </select>
@@ -250,11 +250,21 @@
 
       function toggleSensorDropdowns() {
       const activeSensor = document.getElementById("ActiveSensor").value;
+      const activegw = document.getElementById("ActiveGw").value;
       document.getElementById("kxDropdown").style.display = activeSensor === "0" ? "block" : "none";
       document.getElementById("adDropdown").style.display = activeSensor === "1" ? "block" : "none";
       document.getElementById("kxRange").style.display = activeSensor === "0" ? "block" : "none";
       document.getElementById("adRange1").style.display = activeSensor === "1" ? "block" : "none";
-      document.body.style.backgroundImage = activeSensor === "1"? "url('vsens_ad.png')": "url('vsens_kx.png')";
+
+      if (activeSensor === "0" && activegw === "0") {
+        document.body.style.backgroundImage = "url('cgw_KX.png')";
+      } else if (activeSensor === "1" && activegw === "0") {
+        document.body.style.backgroundImage = "url('cgw_AD.png')";
+      } else if (activeSensor === "0" && activegw === "1") {
+        document.body.style.backgroundImage = "url('vgw_KX.png')";
+      } else if (activeSensor === "1" && activegw === "1") {
+        document.body.style.backgroundImage = "url('vgw_LF.png')";
+      }
     }
     function generateMacInputs() {
       const container = document.getElementById("macInputsContainer");

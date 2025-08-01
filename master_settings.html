@@ -13,7 +13,7 @@
     }
 
     body {
-      background-image: url('vsens_kx.png');
+      background-image: url('cgw_KX.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -69,7 +69,7 @@
     <h2>Master vSens Settings Configuration File Generator</h2>
 
     <label for="ActiveGw" style="font-weight: bold;">Configuring Gateway:</label>
-    <select id="ActiveGw">
+    <select id="ActiveGw" onchange  = "background_change()";>
       <option value="0" selected>Compulab</option>
       <option value="1">vGateway Lite</option>
     </select>
@@ -99,6 +99,18 @@
   </div>
 
   <script>
+
+    function background_change() {
+      const activegw = document.getElementById("ActiveGw").value;
+
+      if (activegw === "0") {
+        document.body.style.backgroundImage = "url('cgw_KX.png')";
+      } else if (activegw === "1") {
+        document.body.style.backgroundImage = "url('vgw_KX.png')";
+      }
+    }
+
+
     function copyJSON() {
       const output = document.getElementById("output");
       const text = output.textContent;
